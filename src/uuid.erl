@@ -34,7 +34,7 @@
 
 % Generates a random binary UUID.
 v4() ->
-  v4(crypto:rand_uniform(1, round(math:pow(2, 48))) - 1, crypto:rand_uniform(1, round(math:pow(2, 12))) - 1, crypto:rand_uniform(1, round(math:pow(2, 32))) - 1, crypto:rand_uniform(1, round(math:pow(2, 30))) - 1).
+  v4(rand_uniform(1, round(math:pow(2, 48))) - 1, rand_uniform(1, round(math:pow(2, 12))) - 1, rand_uniform(1, round(math:pow(2, 32))) - 1, rand_uniform(1, round(math:pow(2, 30))) - 1).
 
 v4(R1, R2, R3, R4) ->
     <<R1:48, 4:4, R2:12, 2:2, R3:32, R4: 30>>.
@@ -58,3 +58,22 @@ convert([], Acc)->
 convert([X, Y | Tail], Acc)->
     {ok, [Byte], _} = io_lib:fread("~16u", [X, Y]),
     convert(Tail, [Byte | Acc]).
+
+% Internal function definitions
+
+-ifdef(post18).
+-spec rand_uniform(Low :: integer(), High :: integer()) -> integer().
+rand_uniform(Low, High) ->
+    Low + rand_uniform(High - Low).
+
+-spec rand_uniform(DynamicRange :: integer()) -> integer().
+rand_uniform(DynamicRange) when DynamicRange < 0 ->
+    - rand_uniform( - DynamicRange);
+rand_uniform(0) -> 0;
+rand_uniform(DynamicRange) ->
+    rand:uniform(DynamicRange) - 1.
+-else.
+-spec rand_uniform(Low :: integer(), High :: integer()) -> integer().
+rand_uniform(Low, High) ->
+    crypto:rand_uniform(Low, High).
+-endif.

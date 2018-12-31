@@ -73,7 +73,9 @@ rand_uniform(DynamicRange) when DynamicRange < 0 ->
     - rand_uniform( - DynamicRange);
 rand_uniform(0) -> 0;
 rand_uniform(DynamicRange) ->
-    rand:uniform(DynamicRange) - 1.
+    PrngState = crypto:rand_seed_s(),
+    {Value, _UpdatedPrngState} = rand:uniform_s(DynamicRange, PrngState),
+    Value - 1.
 -else.
 -spec rand_uniform(Low :: integer(), High :: integer()) -> integer().
 rand_uniform(Low, High) ->

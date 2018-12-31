@@ -61,7 +61,7 @@ convert([X, Y | Tail], Acc)->
 
 % Internal function definitions
 
--ifdef(post18).
+-ifdef(post19).
 -spec rand_uniform(Low :: integer(), High :: integer()) -> integer().
 rand_uniform(Low, High) ->
     Low + rand_uniform(High - Low).

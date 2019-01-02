@@ -29,6 +29,8 @@
 % SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %
 -module(uuid).
+-include_lib("eunit/include/eunit.hrl").
+
 -export([v4/0, to_string/1, get_parts/1, to_binary/1]).
 -ignore_xref([{v4, 0}, {to_string, 1}, {get_parts, 1}, {to_binary, 1}]).
 
@@ -61,7 +63,7 @@ convert([X, Y | Tail], Acc)->
 
 % Internal function definitions
 
--ifdef(post18).
+-ifdef(post19).
 -spec rand_uniform(Low :: integer(), High :: integer()) -> integer().
 rand_uniform(Low, High) ->
     Low + rand_uniform(High - Low).
@@ -71,9 +73,16 @@ rand_uniform(DynamicRange) when DynamicRange < 0 ->
     - rand_uniform( - DynamicRange);
 rand_uniform(0) -> 0;
 rand_uniform(DynamicRange) ->
-    rand:uniform(DynamicRange) - 1.
+    PrngState = crypto:rand_seed_s(),
+    {Value, _UpdatedPrngState} = rand:uniform_s(DynamicRange, PrngState),
+    Value - 1.
 -else.
 -spec rand_uniform(Low :: integer(), High :: integer()) -> integer().
 rand_uniform(Low, High) ->
     crypto:rand_uniform(Low, High).
+-endif.
+
+-ifdef(TEST).
+basic_test() ->
+    ?assertMatch(<<_:16/binary>>, ?MODULE:v4()).
 -endif.
